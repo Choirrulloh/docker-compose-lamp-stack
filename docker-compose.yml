@@ -1,0 +1,37 @@
+version: '3'
+services:
+    web:
+        build:
+            context: ./docker
+            dockerfile: web.Dockerfile
+        container_name: ${APP_NAME:?err}-web
+        depends_on:
+          - db
+        ports:
+            - '80:80'
+            - '443:443'
+        volumes:
+            - './config/vhosts:/etc/apache2/sites-enabled'
+            - './app:/var/www/html'
+            - './logs/apache2:/var/log/apache2'
+
+    db:
+      image: mysql:5.7
+      container_name: ${APP_NAME:?err}-db
+      restart: 'on-failure'
+      environment:
+        MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?err}
+        MYSQL_USER: ${MYSQL_USER:?err}
+        MYSQL_PASSWORD: ${MYSQL_PASSWORD:?err}
+        MYSQL_DATABASE: ${MYSQL_DATABASE:?err}
+
+    # phpmyadmin:
+    #   image: phpmyadmin/phpmyadmin
+    #   container_name: '${APP_NAME:?err}-phpmyadmin'
+    #   links:
+    #     - db
+    #   environment:
+    #     PMA_HOST: mysql
+    #     PMA_PORT: 3306
+    #   ports:
+    #     - '9001:80'
